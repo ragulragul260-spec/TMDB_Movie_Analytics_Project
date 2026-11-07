@@ -3,95 +3,150 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-movies = pd.read_csv(
-    "data/cleaned_data_movies.csv"
-)
+# Load Data
+movies = pd.read_csv("data/cleaned_data_movies.csv")
+cast = pd.read_csv("data/cast_cleaned.csv")
 
-cast = pd.read_csv(
-    "data/cast_cleaned.csv"
-)
+st.title("📊 Movie Dashboard")
 
-st.title("📊 Dashboard")
+# ======================
+# KPI CARDS
+# ======================
 
-# KPI Cards
-
-c1,c2,c3,c4 = st.columns(4)
+c1, c2, c3, c4 = st.columns(4)
 
 with c1:
-    st.metric(
-        "Movies",
-        movies["movie_id"].nunique()
-    )
+    st.metric("🎬 Movies",
+              movies["movie_id"].nunique())
 
 with c2:
-    st.metric(
-        "Genres",
-        19
-    )
+    st.metric("🎭 Genres", 19)
 
 with c3:
-    st.metric(
-        "Actors",
-        cast["actor_name"].nunique()
-    )
+    st.metric("👥 Actors",
+              cast["actor_name"].nunique())
 
 with c4:
     st.metric(
-        "Average Rating",
-        round(
-            movies["vote_average"].mean(),
-            2
-        )
+        "⭐ Avg Rating",
+        round(movies["vote_average"].mean(), 2)
     )
+
+st.divider()
+
+# ======================
+# TWO CHARTS IN SAME ROW
+# ======================
+
+col1, col2 = st.columns(2)
 
 # Top Revenue Movies
 
-st.subheader("Top 10 Movies by Revenue")
+with col1:
 
-top10 = (
-    movies
-    .sort_values(
-        "revenue",
-        ascending=False
+    st.subheader("💰 Top 10 Movies by Revenue")
+
+    top_revenue = (
+        movies
+        .sort_values(
+            "revenue",
+            ascending=False
+        )
+        .head(10)
     )
-    .head(10)
-)
 
-fig, ax = plt.subplots(
-    figsize=(10,5)
-)
+    fig1, ax1 = plt.subplots(
+        figsize=(8,5)
+    )
 
-sns.barplot(
-    data=top10,
-    x="revenue",
-    y="title",
-    ax=ax
-)
+    sns.barplot(
+        data=top_revenue,
+        x="revenue",
+        y="title",
+        palette="Blues_r",
+        hue="title",
+        legend=False,
+        ax=ax1
+    )
 
-st.pyplot(fig)
+    ax1.set_xlabel("Revenue")
+    ax1.set_ylabel("Movie")
 
-# Budget vs Revenue
+    st.pyplot(fig1)
 
-st.subheader("Budget vs Revenue")
+# Top Rated Movies
 
-fig, ax = plt.subplots(
-    figsize=(8,6)
+with col2:
+
+    st.subheader("⭐ Top Rated Movies")
+
+    top_rated = (
+        movies
+        .sort_values(
+            "vote_average",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    fig2, ax2 = plt.subplots(
+        figsize=(8,5)
+    )
+
+    sns.barplot(
+        data=top_rated,
+        x="vote_average",
+        y="title",
+        palette="Greens_r",
+        hue="title",
+        legend=False,
+        ax=ax2
+    )
+
+    ax2.set_xlabel("Rating")
+    ax2.set_ylabel("Movie")
+
+    st.pyplot(fig2)
+
+# ======================
+# FULL WIDTH CHART
+# ======================
+
+st.subheader("📈 Budget vs Revenue")
+
+fig3, ax3 = plt.subplots(
+    figsize=(12,6)
 )
 
 sns.scatterplot(
     data=movies,
     x="budget",
     y="revenue",
-    ax=ax
+    alpha=0.7,
+    color="red",
+    ax=ax3
 )
 
-st.pyplot(fig)
+ax3.set_title(
+    "Relationship Between Budget and Revenue"
+)
+
+st.pyplot(fig3)
+
+# ======================
+# INSIGHTS
+# ======================
+
+st.subheader("💡 Key Insights")
 
 st.success(
     """
-    Insight:
+    • Higher budget movies generally earn higher revenue.
 
-    Most high-budget movies generate larger revenues.
-    Avatar remains one of the strongest box-office performers.
+    • Avatar, Avengers and Titanic are among the top revenue generators.
+
+    • Highly rated movies tend to receive stronger audience engagement.
+
+    • Revenue and popularity show a positive trend for blockbuster films.
     """
 )
